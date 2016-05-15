@@ -15,6 +15,13 @@ angular.module('nadobit.app', [
     this.states = function(definitions, parentName) {
         definitions.forEach(function(definition) {
 
+            // definition maybe loaded via require. At some point there is
+            // a caching mechanism which reuses exported objects if the imported
+            // files are exactly the same. Because of this, we cannot change
+            // the name attribute directly. For this reason a new object is
+            // created.
+            definition = Object.create(definition);
+
             if (parentName) {
                 definition.name = parentName + '.' + definition.name;
             }
