@@ -11,6 +11,9 @@
   },
   "author": "",
   "license": "MIT",
+  "bin": {
+    "nadoapp": "bin/nadoapp"
+  },
   "bugs": {
     "url": "https://github.com/nadobit/angular-nadobit-app/issues"
   },

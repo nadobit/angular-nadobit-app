@@ -1,0 +1,5 @@
+/node_modules
+/.virtualenv
+/htdocs
+/release
+/src/modules/*/static/css
