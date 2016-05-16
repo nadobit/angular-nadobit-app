@@ -51,10 +51,14 @@ gulp.task('release/vendor.min.js', gulp.series(
     }
 ));
 
-gulp.task('htdocs/vendor.css', function() {
-    return gulp.src(config.vendor.css)
-        .pipe(concat('vendor.css'))
-        .pipe(gulp.dest('htdocs'));
+gulp.task('htdocs/vendor.css', function(done) {
+    if (config.vendor.css.length > 0) {
+        return gulp.src(config.vendor.css)
+            .pipe(concat('vendor.css'))
+            .pipe(gulp.dest('htdocs'));
+    }
+    fs.writeFileSync('htdocs/vendor.css', '');
+    done();
 });
 
 gulp.task('release/vendor.min.css', gulp.series(
@@ -71,9 +75,12 @@ gulp.task('release/vendor.min.css', gulp.series(
     }
 ));
 
-gulp.task('htdocs/fonts/*', function() {
-    return gulp.src(config.vendor.fonts)
-        .pipe(gulp.dest('htdocs/fonts'));
+gulp.task('htdocs/fonts/*', function(done) {
+    if (config.vendor.fonts.length > 0) {
+        return gulp.src(config.vendor.fonts)
+            .pipe(gulp.dest('htdocs/fonts'));
+    }
+    done();
 });
 
 // modules scripts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

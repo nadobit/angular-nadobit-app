@@ -23,9 +23,15 @@
     "angular-ui-router": "^0.3.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-browserify": "^0.5.1",
+    "gulp-concat-util": "^0.5.5",
+    "gulp-less": "^3.1.0",
+    "gulp-minifier": "^0.1.4",
     "gulp-ng-annotate": "^2.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.5.4",
+    "gulp-rev-append": "^0.1.6",
+    "gulp-rsync": "0.0.6",
+    "gulp-webserver": "^0.9.1",
     "vorpal": "^1.10.10"
   }
 }
