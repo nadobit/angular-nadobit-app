@@ -2,6 +2,7 @@ var browserify = require('gulp-browserify'),
     concat = require('gulp-concat-util'),
     fs = require('fs'),
     gulp = require('gulp'),
+    pug = require('gulp-pug'),
     less = require('gulp-less'),
     minifier = require('gulp-minifier'),
     ngAnnotate = require('gulp-ng-annotate'),
@@ -12,9 +13,6 @@ var browserify = require('gulp-browserify'),
 
 var config = {
     app: '{{app-name}}',
-    modules: [
-        '{{app-name}}',
-    ],
     vendor: {
         js: [
             'node_modules/angular/angular.js',
@@ -83,35 +81,27 @@ gulp.task('htdocs/fonts/*', function(done) {
     done();
 });
 
-// modules scripts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+gulp.task('htdocs/i18n/*', function() {
+    return gulp.src(config.vendor.i18n)
+        .pipe(gulp.dest('htdocs/i18n'));
+});
+
+// scripts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 (function() {
 
-    var tasks = [];
-    config.modules.forEach(function(moduleName) {
-        var source = 'src/' + moduleName + '/index.js';
-        var target = 'htdocs/js/' + moduleName + '.js';
-        tasks.push(target);
-        gulp.task(target, function() {
-            return gulp.src(source)
-                .pipe(browserify({
-                    debug: true,
-                }))
-                .pipe(rename(moduleName + '.js'))
-                .pipe(gulp.dest('htdocs/js'))
-        });
-    });
+    var source = 'src/index.js';
+    var target = 'htdocs/' + config.app + '.js';
 
-    gulp.task('htdocs/' + config.app + '.js', gulp.series(
-        gulp.parallel.apply(gulp, tasks),
-        function() {
-            return gulp.src('htdocs/js/**/*.js')
-                .pipe(concat.footer('\n;\n'))
-                .pipe(concat(config.app + '.js'))
-                .pipe(ngAnnotate())
-                .pipe(gulp.dest('htdocs'));
-        }
-    ));
+    gulp.task(target, function() {
+        return gulp.src(source)
+            .pipe(browserify({
+                debug: true,
+            }))
+            .pipe(ngAnnotate())
+            .pipe(rename(config.app + '.js'))
+            .pipe(gulp.dest('htdocs'))
+    });
 
 })();
 
@@ -129,38 +119,19 @@ gulp.task('release/' + config.app + '.min.js', gulp.series(
     }
 ));
 
+// styles ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 (function() {
 
-    var tasks = [];
-    config.modules.forEach(function(moduleName) {
-        var source = 'src/' + moduleName + '/less/screen.less';
-        var target = 'htdocs/css/' + moduleName + '.css';
+    var source = 'src/less/screen.less';
+    var target = 'htdocs/' + config.app + '.css';
 
-        var sourceExists = false;
-        try {
-            fs.statSync(source);
-            sourceExists = true;
-        } catch(e) {}
-
-        if (sourceExists) {
-            tasks.push(target);
-            gulp.task(target, function() {
-                return gulp.src(source)
-                    .pipe(less())
-                    .pipe(rename(moduleName + '.css'))
-                    .pipe(gulp.dest('htdocs/css'))
-            });
-        }
+    gulp.task(target, function() {
+        return gulp.src(source)
+            .pipe(less())
+            .pipe(rename(config.app + '.css'))
+            .pipe(gulp.dest('htdocs'))
     });
-
-    gulp.task('htdocs/' + config.app + '.css', gulp.series(
-        gulp.parallel.apply(gulp, tasks),
-        function() {
-            return gulp.src('htdocs/css/**/*.css')
-                .pipe(concat(config.app + '.css'))
-                .pipe(gulp.dest('htdocs'));
-        }
-    ));
 
 })();
 
@@ -178,29 +149,40 @@ gulp.task('release/' + config.app + '.min.css', gulp.series(
     }
 ));
 
+// templates ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 (function() {
 
-    var tasks = [];
-    config.modules.forEach(function(moduleName) {
-        var source = 'src/' + moduleName + '/static/**';
-        var target = 'collectstatic-' + moduleName;
-        tasks.push(target);
-        gulp.task(target, function() {
-            return gulp.src(source)
-                .pipe(gulp.dest('htdocs'));
-        });
+    tasks = [];
+
+    tasks.push(function() {
+        return gulp.src([
+            'src/**/*.html',
+            '!src/index.html',
+            '!src/index.release.html',
+        ])
+            .pipe(gulp.dest('htdocs/tpl'));
     });
 
-    gulp.task('collectstatic', gulp.series(
-        function() {
-            return gulp.src('src/static/**')
-                .pipe(gulp.dest('htdocs'));
-        },
-        gulp.series.apply(gulp, tasks)
-    ));
+    tasks.push(function() {
+        return gulp.src('src/**/*.jade')
+            .pipe(pug({
+                pretty: '\t'
+            }))
+            .pipe(gulp.dest('htdocs/tpl'));
+    });
+
+
+    gulp.task('htdocs/tpl/*', gulp.parallel.apply(gulp, tasks));
 
 })();
 
+// static files ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+gulp.task('collectstatic', function() {
+    return gulp.src('src/static/**')
+        .pipe(gulp.dest('htdocs'));
+});
 
 // index ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -246,7 +228,9 @@ gulp.task('release/index.html', gulp.series(
 gulp.task('build', gulp.parallel(
     'collectstatic',
     'htdocs/fonts/*',
-    'htdocs/index.html'
+    'htdocs/index.html',
+    'htdocs/i18n/*',
+    'htdocs/tpl/*'
 ));
 
 gulp.task('dev', gulp.series(
@@ -257,18 +241,17 @@ gulp.task('dev', gulp.series(
             'htdocs/' + config.app + '.js'
         ));
 
-        config.modules.forEach(function(moduleName) {
+        gulp.watch([
+            'src/**/*.jade',
+            'src/**/*.html',
+        ], gulp.task(
+            'htdocs/tpl/*'
+        ));
 
-            gulp.watch([
-                'src/' + moduleName + '/less/**/*.less',
-                'src/' + moduleName + '/**/*.js',
-            ], gulp.task('htdocs/index.html'));
-
-            gulp.watch(
-                'src/' + moduleName + '/static/**/*.html',
-                gulp.task('collectstatic-' + moduleName)
-            );
-        });
+        gulp.watch(
+            'src/static/**',
+            gulp.task('collectstatic')
+        );
 
         gulp.watch('src/index.html', gulp.task('htdocs/index.html'));
 

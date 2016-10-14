@@ -27,6 +27,7 @@
     "gulp-less": "^3.1.0",
     "gulp-minifier": "^0.1.4",
     "gulp-ng-annotate": "^2.0.0",
+    "gulp-pug": "^3.1.0",
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.5.4",
     "gulp-rev-append": "^0.1.6",

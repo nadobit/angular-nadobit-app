@@ -1,6 +1,6 @@
 var states = [
-    require('./states/home.js'),
-    require('./states/404.js'),
+    require('./states/home'),
+    require('./states/404'),
 ];
 
 angular.module('{{app-name}}', [
