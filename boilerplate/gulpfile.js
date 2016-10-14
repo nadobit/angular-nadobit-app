@@ -22,7 +22,9 @@ var config = {
         css: [
         ],
         fonts: [
-        ]
+        ],
+        i18n: [
+        ],
     }
 };
 
@@ -81,9 +83,12 @@ gulp.task('htdocs/fonts/*', function(done) {
     done();
 });
 
-gulp.task('htdocs/i18n/*', function() {
-    return gulp.src(config.vendor.i18n)
-        .pipe(gulp.dest('htdocs/i18n'));
+gulp.task('htdocs/i18n/*', function(done) {
+    if (config.vendor.i18n.length > 0) {
+        return gulp.src(config.vendor.i18n)
+            .pipe(gulp.dest('htdocs/i18n'));
+    }
+    done();
 });
 
 // scripts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
