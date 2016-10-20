@@ -170,7 +170,7 @@ gulp.task('release/' + config.app + '.min.css', gulp.series(
     });
 
     tasks.push(function() {
-        return gulp.src('src/**/*.jade')
+        return gulp.src('src/**/*.pug')
             .pipe(pug({
                 pretty: '\t'
             }))
@@ -247,7 +247,7 @@ gulp.task('dev', gulp.series(
         ));
 
         gulp.watch([
-            'src/**/*.jade',
+            'src/**/*.pug',
             'src/**/*.html',
         ], gulp.task(
             'htdocs/tpl/*'
