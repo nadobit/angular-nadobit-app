@@ -20,7 +20,7 @@
   "homepage": "https://github.com/nadobit/angular-nadobit-app#readme",
   "dependencies": {
     "angular": "^1.5.5",
-    "angular-ui-router": "^0.3.0",
+    "@uirouter/angularjs": "^0.3.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-angular-gettext": "^2.2.0",
     "gulp-browserify": "^0.5.1",
