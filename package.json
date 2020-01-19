@@ -21,7 +21,7 @@
   "dependencies": {
     "angular": "^1.5.5",
     "@uirouter/angularjs": "^0.3.0",
-    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp": "4.0",
     "gulp-angular-gettext": "^2.2.0",
     "gulp-browserify": "^0.5.1",
     "gulp-concat-util": "^0.5.5",
